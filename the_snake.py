@@ -23,10 +23,6 @@ GRID_SIZE = 20  # размер ячейки игрового поля
 GRID_WIDTH = SCREEN_WIDTH // GRID_SIZE
 GRID_HEIGHT = SCREEN_HEIGHT // GRID_SIZE
 
-pygame.init()  # pylint: disable=no-member
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-clock = pygame.time.Clock()
-
 
 class GameObject(ABC):
     """Базовый класс для игровых объектов."""
@@ -197,3 +193,6 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+    pygame.init()  # pylint: disable=no-member
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    clock = pygame.time.Clock()
