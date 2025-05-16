@@ -6,7 +6,6 @@ from typing import Any
 
 from pygame.time import Clock
 import pytest
-import pytest_timeout
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 sys.path.append(str(BASE_DIR))
@@ -26,11 +25,13 @@ TIMEOUT_ASSERT_MSG = (
 
 
 def import_the_snake():
+    """Импортирует модуль `the_snake` для проверки возможности его импорта."""
     import the_snake  # noqa
 
 
 @pytest.fixture(scope='session')
 def snake_import_test():
+    """Проверяет, что модуль `the_snake` импортируется без зависаний."""
     check_import_process = Process(target=import_the_snake)
     check_import_process.start()
     pid = check_import_process.pid
@@ -42,6 +43,7 @@ def snake_import_test():
 
 @pytest.fixture(scope='session')
 def _the_snake(snake_import_test):
+    """Импортирует модуль `the_snake` и проверяет наличие основных классов."""
     try:
         import the_snake
     except ImportError as error:
@@ -51,28 +53,26 @@ def _the_snake(snake_import_test):
         )
     for class_name in ('GameObject', 'Snake', 'Apple'):
         assert hasattr(the_snake, class_name), (
-            f'Убедитесь, что в модуле `the_snake` определен класс `{class_name}`.'
+            'Убедитесь, что в модуле `the_snake` '
+            f'определен класс `{class_name}`.'
         )
     return the_snake
 
 
 def write_timeout_reasons(text, stream=None):
-    """Write possible reasons of tests timeout to stream.
-
-    The function to replace pytest_timeout traceback output with possible
-    reasons of tests timeout.
-    Appears only when `thread` method is used.
-    """
+    """Выводит причины возможных ошибок при таймауте тестов."""
     if stream is None:
         stream = sys.stderr
     text = TIMEOUT_ASSERT_MSG
     stream.write(text)
 
 
-pytest_timeout.write = write_timeout_reasons
-
-
 def _create_game_object(class_name, module):
+    """Создаёт экземпляр класса с именем `class_name` из модуля `module`.
+
+    Проверяет, что конструктор класса корректно вызывается без обязательных
+    параметров, кроме `self`.
+    """
     try:
         return getattr(module, class_name)()
     except TypeError as error:
@@ -86,40 +86,35 @@ def _create_game_object(class_name, module):
         )
 
 
-@pytest.fixture
-def game_object(_the_snake):
-    return _create_game_object('GameObject', _the_snake)
-
-
-@pytest.fixture
-def snake(_the_snake):
-    return _create_game_object('Snake', _the_snake)
-
-
-@pytest.fixture
-def apple(_the_snake):
-    return _create_game_object('Apple', _the_snake)
-
-
 class StopInfiniteLoop(Exception):
+    """Исключение для прерывания бесконечного цикла в тестах."""
+
     pass
 
 
 def loop_breaker_decorator(func):
+    """Декоратор, который прерывает функцию после второго вызова.
+
+    Используется для предотвращения бесконечных циклов в тестах.
+    """
     call_counter = 0
 
     def wrapper(*args, **kwargs):
-        result = func(*args, **kwargs)
         nonlocal call_counter
         call_counter += 1
         if call_counter > 1:
             raise StopInfiniteLoop
-        return result
+        return func(*args, **kwargs)
     return wrapper
 
 
 @pytest.fixture
 def modified_clock(_the_snake):
+    """Заменяет объект clock в модуле `the_snake` на модифицированную версию.
+
+    В новой версии метод tick вызывает оригинальный tick, но бросает исключение
+    после второго вызова для предотвращения бесконечного цикла.
+    """
     class _Clock:
         def __init__(self, clock_obj: Clock) -> None:
             self.clock = clock_obj
