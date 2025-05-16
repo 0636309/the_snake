@@ -1,3 +1,4 @@
+"""Мяу"""
 import os
 import sys
 from multiprocessing import Process
@@ -26,7 +27,14 @@ TIMEOUT_ASSERT_MSG = (
 
 def import_the_snake():
     """Импортирует модуль `the_snake` для проверки возможности его импорта."""
-    import the_snake  # noqa
+    # pylint: disable=import-outside-toplevel
+    try:
+        import the_snake  # Локальный импорт с явным отключением проверки
+        return the_snake.Snake()
+    except ImportError as error:
+        raise ImportError(
+            f"Ошибка импорта модуля the_snake: {error}"
+        ) from error
 
 
 @pytest.fixture(scope='session')
@@ -42,15 +50,17 @@ def snake_import_test():
 
 
 @pytest.fixture(scope='session')
+# pylint: disable=redefined-outer-name, unused-argument
 def _the_snake(snake_import_test):
     """Импортирует модуль `the_snake` и проверяет наличие основных классов."""
     try:
+        # pylint: disable=import-outside-toplevel
         import the_snake
     except ImportError as error:
         raise AssertionError(
             'При импорте модуль `the_snake` произошла ошибка:\n'
             f'{type(error).__name__}: {error}'
-        )
+        ) from error
     for class_name in ('GameObject', 'Snake', 'Apple'):
         assert hasattr(the_snake, class_name), (
             'Убедитесь, что в модуле `the_snake` '
@@ -83,13 +93,11 @@ def _create_game_object(class_name, module):
             '`self` передаются какие-то ещё параметры - убедитесь, что для '
             'них установлены значения по умолчанию. Например:\n'
             '`def __init__(self, <параметр>=<значение_по_умолчанию>):`'
-        )
+        ) from error
 
 
 class StopInfiniteLoop(Exception):
     """Исключение для прерывания бесконечного цикла в тестах."""
-
-    pass
 
 
 def loop_breaker_decorator(func):
@@ -121,6 +129,7 @@ def modified_clock(_the_snake):
 
         @loop_breaker_decorator
         def tick(self, *args, **kwargs):
+            """Вызывает метод tick"""
             return self.clock.tick(*args, **kwargs)
 
         def __getattribute__(self, name: str) -> Any:

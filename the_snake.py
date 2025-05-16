@@ -1,5 +1,6 @@
-import pygame
+"""Надоело все."""
 from random import randint
+import pygame
 
 # Константы для размеров поля и сетки
 SCREEN_WIDTH, SCREEN_HEIGHT = 640, 480
@@ -92,7 +93,7 @@ class Snake:
         if self.last:
             last_rect = pygame.Rect(self.last, (GRID_SIZE, GRID_SIZE))
             pygame.draw.rect(screen, BOARD_BACKGROUND_COLOR, last_rect)
-    
+
     def grow(self):
         """Добавляет сегмент к змее."""
         if self.last:
