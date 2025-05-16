@@ -29,12 +29,11 @@ class GameObject(ABC):
 class Apple(GameObject):
     """Класс яблока в игре."""
 
-    body_color = (255, 0, 0)  # красный цвет яблока
-
     def __init__(self) -> None:
         """Инициализация яблока с случайной позицией."""
         # Сразу задаём случайную позицию
         super().__init__(self.randomize_position())
+        self.body_color = (255, 0, 0)
 
     def randomize_position(self) -> Tuple[int, int]:
         """Устанавливает случайную позицию яблока на игровом поле."""
@@ -54,8 +53,6 @@ class Apple(GameObject):
 class Snake(GameObject):
     """Класс змейки."""
 
-    body_color = (0, 255, 0)  # зелёный цвет змейки
-
     def __init__(self) -> None:
         """Инициализация змейки в центре экрана с длиной 1."""
         center_pos = (GRID_WIDTH // 2, GRID_HEIGHT // 2)
@@ -64,6 +61,7 @@ class Snake(GameObject):
         self.positions: List[Tuple[int, int]] = [center_pos]
         self.direction = (1, 0)  # изначально движемся вправо
         self.next_direction: Optional[Tuple[int, int]] = None
+        self.body_color = (0, 255, 0)
 
     def update_direction(self) -> None:
         """Обновляет направление змейки."""
