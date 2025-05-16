@@ -4,6 +4,17 @@ from typing import List, Tuple, Optional
 import random
 import pygame
 
+# Константы управления
+UP = (0, -1)
+DOWN = (0, 1)
+LEFT = (-1, 0)
+RIGHT = (1, 0)
+
+# Размер клетки сетки
+CELL_SIZE = 20  # или любое другое значение по заданию
+
+# Цвет фона
+BOARD_BACKGROUND_COLOR = (0, 0, 0)  # чёрный или выбери свой
 
 # Константы
 SCREEN_WIDTH = 600
@@ -11,6 +22,10 @@ SCREEN_HEIGHT = 400
 GRID_SIZE = 20  # размер ячейки игрового поля
 GRID_WIDTH = SCREEN_WIDTH // GRID_SIZE
 GRID_HEIGHT = SCREEN_HEIGHT // GRID_SIZE
+
+pygame.init()  # pylint: disable=no-member
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+clock = pygame.time.Clock()
 
 
 class GameObject(ABC):
@@ -23,7 +38,11 @@ class GameObject(ABC):
 
     @abstractmethod
     def draw(self, surface: pygame.Surface) -> None:
-        """Метод для отрисовки объекта."""
+        """Отрисовка."""
+        if self.body_color is not None:
+            rect = pygame.Rect(
+                self.position[0], self.position[1], CELL_SIZE, CELL_SIZE)
+            pygame.draw.rect(surface, self.body_color, rect)
 
 
 class Apple(GameObject):
@@ -140,6 +159,7 @@ def main() -> None:
     игровой цикл, обновление и отрисовка объектов.
     """
     pygame.init()  # pylint: disable=no-member
+    # pylint: disable=redefined-outer-name
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption('Snake Game')
 
