@@ -59,19 +59,12 @@ class Apple(GameObject):
 class Snake(GameObject):
     """Класс Snake."""
 
-    def __init__(self, x, y):
+    def __init__(self, x=5, y=5):
         super().__init__(x, y)
         self.positions = [(GRID_SIZE * 5, GRID_SIZE * 12)]
         self.direction = RIGHT
-        self.next_direction = None
         self.body_color = SNAKE_COLOR
         self.last = None
-
-    def update_direction(self):
-        """."""
-        if self.next_direction:
-            self.direction = self.next_direction
-            self.next_direction = None
 
     def move(self):
         """."""
@@ -97,33 +90,6 @@ class Snake(GameObject):
             pygame.draw.rect(screen, self.body_color, rect)
             pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
 
-    def handle_keys(self):
-        """."""
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:  # pylint: disable=no-member
-                pygame.quit()  # pylint: disable=no-member
-                raise SystemExit
-            elif event.type == pygame.KEYDOWN:  # pylint: disable=no-member
-                if (
-                    event.key == pygame.K_UP  # pylint: disable=no-member
-                    and self.direction != DOWN
-                ):
-                    self.next_direction = UP
-                elif (
-                    event.key == pygame.K_DOWN  # pylint: disable=no-member
-                    and self.direction != UP
-                ):
-                    self.next_direction = DOWN
-                elif (
-                    event.key == pygame.K_LEFT  # pylint: disable=no-member
-                    and self.direction != RIGHT
-                ):
-                    self.next_direction = LEFT
-                elif (event.key == pygame.K_RIGHT  # pylint: disable=no-member
-                      and self.direction != LEFT
-                      ):
-                    self.next_direction = RIGHT
-
 
 def main():
     """."""
@@ -133,8 +99,7 @@ def main():
 
     while True:
         clock.tick(SPEED)
-        snake.handle_keys()
-        snake.update_direction()
+        snake.direction = handle_keys(snake.direction)
 
         try:
             snake.move()
@@ -150,6 +115,36 @@ def main():
         apple.draw()
         snake.draw()
         pygame.display.update()
+
+
+def handle_keys(current_direction):
+    """."""
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:  # pylint: disable=no-member
+            pygame.quit()  # pylint: disable=no-member
+            raise SystemExit
+        elif event.type == pygame.KEYDOWN:  # pylint: disable=no-member
+            if (
+                event.key == pygame.K_UP  # pylint: disable=no-member
+                and current_direction != DOWN
+            ):
+                return UP
+            elif (
+                event.key == pygame.K_DOWN  # pylint: disable=no-member
+                and current_direction != UP
+            ):
+                return DOWN
+            elif (
+                event.key == pygame.K_LEFT  # pylint: disable=no-member
+                and current_direction != RIGHT
+            ):
+                return LEFT
+            elif (
+                event.key == pygame.K_RIGHT  # pylint: disable=no-member
+                and current_direction != LEFT
+            ):
+                return RIGHT
+    return current_direction
 
 
 if __name__ == "__main__":
