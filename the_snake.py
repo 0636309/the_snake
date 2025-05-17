@@ -63,8 +63,25 @@ class Snake(GameObject):
         super().__init__(x, y)
         self.positions = [(GRID_SIZE * 5, GRID_SIZE * 12)]
         self.direction = RIGHT
+        self.next_direction = None
         self.body_color = SNAKE_COLOR
         self.last = None
+
+    def get_head_position(self):
+        """Возвращает координаты головы змеи."""
+        return self.positions[0]
+
+    def reset(self):
+        """Сброс змейки в начальное состояние."""
+        self.positions = [(GRID_SIZE * 5, GRID_SIZE * 12)]
+        self.direction = RIGHT
+        self.next_direction = None
+
+    def update_direction(self):
+        """Применяет запрошенное направление движения."""
+        if self.next_direction:
+            self.direction = self.next_direction
+            self.next_direction = None
 
     def move(self):
         """."""
